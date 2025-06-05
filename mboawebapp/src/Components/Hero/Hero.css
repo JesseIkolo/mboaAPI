@@ -1,0 +1,424 @@
+.about-container {
+  padding: 5rem;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #f0f2ff 0%, #e8eeff 50%, #e4edff 100%);
+}
+
+.about-header h1, .about-header h2 {
+  color: #0a1a5e;
+}
+
+.top-section {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* Card 1: Événements */
+.events-card {
+  flex: 2;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.events-card:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: 0.5s;
+}
+
+.events-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.events-card:hover:before {
+  left: 100%;
+}
+
+.events-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.events-content .text {
+  flex: 1;
+}
+
+.events-content .text h3 {
+  color: #002f9f;
+  font-size: 34px;
+}
+
+.phone-mockup {
+  width: 270px;
+  border-radius: 1rem;
+}
+
+/* Card 2: Vision */
+.vision-card {
+  flex: 1;
+  background: #002f9f;
+  color: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.vision-card:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: 0.5s;
+}
+
+.vision-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.vision-card:hover:before {
+  left: 100%;
+}
+
+/* Card 3 + 4 en bas */
+.bottom-section {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+/* Card 3: Mission */
+.mission-card {
+  flex: 1;
+  background: #1e1e1e;
+  color: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.mission-card:before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, #002f9f, #0050ff);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease-out;
+}
+
+.mission-card:hover {
+  transform: translateX(5px) translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.mission-card:hover:before {
+  transform: scaleX(1);
+}
+
+/* Card 4: Communauté */
+.community-card {
+  flex: 2;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.community-card:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: 0.5s;
+}
+
+.community-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.community-card:hover:before {
+  left: 100%;
+}
+
+.community-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.community-content .text {
+  flex: 1;
+}
+
+.community-content .text h3 {
+  color: #002f9f;
+}
+
+/* Bouton Contact */
+.contact-btn {
+  margin-top: 1rem;
+  background-color: white;
+  color: #002f9f;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.contact-btn:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: #002f9f;
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+.contact-btn:hover {
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 47, 159, 0.3);
+}
+
+.contact-btn:hover:before {
+  width: 100%;
+}
+
+.contact-btn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 47, 159, 0.3);
+}
+
+h3 {
+  font-size: 38px;
+  color: #FEE9E9;
+}
+
+/* Keyframes for animations */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Add entrance animations for cards when they come into view */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.top-section > *, .bottom-section > * {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.top-section > *:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.bottom-section > *:nth-child(1) {
+  animation-delay: 0.4s;
+}
+
+.bottom-section > *:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+
+@media (max-width: 1024px) {
+  .about-container {
+    padding: 3rem 2rem;
+  }
+
+  .events-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .events-content .text h3 {
+    font-size: 28px;
+  }
+
+  .phone-mockup {
+    width: 220px;
+  }
+
+  .vision-card,
+  .mission-card,
+  .community-card {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-container {
+    padding: 2rem 1rem;
+  }
+
+  .top-section,
+  .bottom-section {
+    flex-direction: column;
+  }
+
+  .events-card,
+  .vision-card,
+  .mission-card,
+  .community-card {
+    flex: none;
+    width: 100%;
+  }
+
+  .events-content,
+  .community-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .events-content .text,
+  .community-content .text {
+    padding: 0;
+  }
+
+  .events-content .text h3,
+  .community-content .text h3,
+  .mission-card h3,
+  .vision-card h3 {
+    font-size: 26px;
+  }
+
+  .phone-mockup {
+    width: 180px;
+  }
+
+  .contact-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 14px;
+  }
+
+  h3 {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .events-content .text h3,
+  .community-content .text h3,
+  .mission-card h3,
+  .vision-card h3 {
+    font-size: 22px;
+  }
+
+  h3 {
+    font-size: 26px;
+  }
+
+  .contact-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .phone-mockup {
+    width: 150px;
+  }
+  .about-header{
+    font-size: 26px;
+  }
+  .about-header h2{
+    font-size: 24px;
+  }
+  .text img{
+    width: 42px;
+  }
+  .about-header h1, .about-header h2 {
+  color: #0a1a5e;
+  font-size: 24px;
+}
+}

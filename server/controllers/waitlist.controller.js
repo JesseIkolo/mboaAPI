@@ -1,6 +1,6 @@
 // --- controllers/waitlist.controller.js ---
 const Waitlist = require('../models/waitlist.model.js');
-const { sendEmailValidation } = require('../services/email.service.js');
+const EmailService = require('../services/email.service.js');
 
 const addToWaitlist = async (req, res) => {
   const { name, email, phone } = req.body;
@@ -11,8 +11,11 @@ const addToWaitlist = async (req, res) => {
     const entry = new Waitlist({ name, email, phone });
     await entry.save();
 
-    await sendEmailValidation(email, 'waitlist-confirmation');
-    res.status(201).json({ message: 'Inscription à la liste d’attente réussie' });
+    if (email) {
+      await EmailService.sendEmailValidation(email, 'waitlist-confirmation');
+    }
+    
+    res.status(201).json({ message: "Inscription à la liste d'attente réussie" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

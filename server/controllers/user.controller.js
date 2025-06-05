@@ -1,5 +1,5 @@
 // --- controllers/user.controller.js ---
-const User = require('../models/user.model.js');
+const { User } = require('../models/user.model.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -74,16 +74,105 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  console.log('LOGIN DEBUG', user);
-  if (!user || !user.password) return res.status(400).json({ message: 'Email invalide' });
+  const { identifier, password } = req.body;
+  try {
+    if (!process.env.JWT_SECRET) {
+      console.error('❌ JWT_SECRET non défini');
+      return res.status(500).json({ message: 'Erreur de configuration du serveur' });
+    }
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(400).json({ message: 'Mot de passe incorrect' });
+    if (!identifier || !password) {
+      return res.status(400).json({ message: 'Identifiant et mot de passe requis' });
+    }
 
-  const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '10d' });
-  res.json({ token });
+    console.log('👤 Tentative de connexion avec:', identifier);
+
+    // Recherche de l'utilisateur par email, username ou téléphone
+    const user = await User.findOne({
+      $or: [
+        { email: identifier },
+        { username: identifier },
+        { phone: identifier }
+      ]
+    });
+    
+    if (!user) {
+      console.log('❌ Utilisateur non trouvé:', identifier);
+      return res.status(400).json({ message: 'Identifiant invalide' });
+    }
+
+    if (!user.password) {
+      console.log('❌ Utilisateur sans mot de passe:', identifier);
+      return res.status(400).json({ message: 'Compte invalide' });
+    }
+
+    console.log('🔍 Vérification du mot de passe pour:', identifier);
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      console.log('❌ Mot de passe incorrect pour:', identifier);
+      
+      // Incrémenter les tentatives de connexion
+      if (user.incrementLoginAttempts) {
+        const isLocked = await user.incrementLoginAttempts();
+        if (isLocked) {
+          return res.status(403).json({ 
+            message: 'Compte temporairement bloqué après trop de tentatives. Veuillez réessayer plus tard.' 
+          });
+        }
+      }
+      
+      return res.status(400).json({ message: 'Mot de passe incorrect' });
+    }
+
+    // Vérifier si le compte est verrouillé
+    if (user.isLocked && user.isLocked()) {
+      console.log('🔒 Compte bloqué pour:', identifier);
+      return res.status(403).json({ 
+        message: 'Compte temporairement bloqué. Veuillez réessayer plus tard.',
+        lockUntil: user.lockUntil
+      });
+    }
+
+    // Réinitialiser les tentatives de connexion en cas de succès
+    if (user.resetLoginAttempts) {
+      await user.resetLoginAttempts();
+    }
+
+    console.log('✅ Connexion réussie pour:', identifier);
+    const token = jwt.sign(
+      { 
+        userId: user._id, 
+        role: user.role || 'user',
+        adminType: user.adminType,
+        isAdminValidated: user.isAdminValidated || false,
+        permissions: user.permissions || []
+      }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '10d' }
+    );
+    
+    res.json({ 
+      token,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role || 'user',
+        adminType: user.adminType,
+        isAdminValidated: user.isAdminValidated || false,
+        permissions: user.permissions || []
+      }
+    });
+  } catch (err) {
+    console.error('❌ LOGIN ERROR:', err.message || err);
+    res.status(500).json({ 
+      message: 'Erreur serveur lors de la connexion',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
 };
 
 const sendOTP = async (req, res) => {

@@ -1,0 +1,309 @@
+openapi: 3.0.0
+info:
+  title: Mboa Events API
+  description: API de gestion d'événements et d'administration
+  version: 1.0.0
+  contact:
+    email: support@mboaevents.com
+
+servers:
+  - url: http://localhost:2103/api
+    description: Serveur de développement
+  - url: https://api.mboaevents.com/api
+    description: Serveur de production
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+        error:
+          type: string
+
+    Success:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [user, admin, superadmin]
+        isAdminValidated:
+          type: boolean
+        firstName:
+          type: string
+        lastName:
+          type: string
+
+    LoginRequest:
+      type: object
+      properties:
+        identifier:
+          type: string
+          description: Email, téléphone ou nom d'utilisateur
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    Event:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        location:
+          type: object
+          properties:
+            address:
+              type: string
+            city:
+              type: string
+            coordinates:
+              type: array
+              items:
+                type: number
+        category:
+          type: string
+        price:
+          type: number
+        organizer:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [draft, published, cancelled]
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Authentification
+    description: Opérations liées à l'authentification
+  - name: Administration
+    description: Opérations réservées aux administrateurs
+  - name: Événements
+    description: Gestion des événements
+  - name: Utilisateurs
+    description: Gestion des utilisateurs
+  - name: Catégories
+    description: Gestion des catégories d'événements
+
+paths:
+  /users/login:
+    post:
+      tags:
+        - Authentification
+      summary: Connexion utilisateur
+      description: Permet à un utilisateur de se connecter avec son email, téléphone ou nom d'utilisateur
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Connexion réussie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Données invalides
+        '401':
+          description: Identifiants incorrects
+        '403':
+          description: Compte bloqué
+
+  /admin/stats:
+    get:
+      tags:
+        - Administration
+      summary: Statistiques administrateur
+      description: Récupère les statistiques globales pour le tableau de bord admin
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Statistiques récupérées avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalEvents:
+                    type: number
+                  activeEvents:
+                    type: number
+                  totalUsers:
+                    type: number
+                  totalPartners:
+                    type: number
+        '401':
+          description: Non authentifié
+        '403':
+          description: Accès non autorisé
+
+  /events:
+    get:
+      tags:
+        - Événements
+      summary: Liste des événements
+      description: Récupère la liste des événements avec pagination
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - in: query
+          name: category
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [draft, published, cancelled]
+      responses:
+        '200':
+          description: Liste des événements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Event'
+                  total:
+                    type: number
+                  page:
+                    type: number
+                  pages:
+                    type: number
+
+    post:
+      tags:
+        - Événements
+      summary: Créer un événement
+      description: Crée un nouvel événement
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '201':
+          description: Événement créé
+        '400':
+          description: Données invalides
+        '401':
+          description: Non authentifié
+        '403':
+          description: Non autorisé
+
+  /categories:
+    get:
+      tags:
+        - Catégories
+      summary: Liste des catégories
+      description: Récupère la liste des catégories d'événements
+      responses:
+        '200':
+          description: Liste des catégories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    name:
+                      type: string
+                    description:
+                      type: string
+
+components:
+  responses:
+    UnauthorizedError:
+      description: Accès non autorisé
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    BadRequest:
+      description: Requête invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    InternalError:
+      description: Erreur serveur
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

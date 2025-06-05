@@ -1,0 +1,4 @@
+# Ignorer tous les fichiers sauf .env et le dossier scripts
+*
+!.env
+!scripts/*

@@ -1,0 +1,26 @@
+
+
+.StatCard{
+    background-color: inherit;
+    color: #041578;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.StatCard h3{
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #041578;
+
+    padding-bottom: 12px;
+}
+
+.StatCard p{
+    font-size: 1rem;
+    font-weight: 400;
+}
+/* EventCard */
+
+.event-thumbnail{
+    border-radius: 10px;
+}

@@ -1,0 +1,917 @@
+/* MboaFeatures.css - Version Responsive Optimisée */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap");
+
+.features-container {
+  font-family: "Montserrat", sans-serif;
+  padding: 80px 0;
+  width: 100%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f0f2ff 0%, #e8eeff 50%, #e4edff 100%);
+  color: #0a1a5e;
+}
+
+.features-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Header Styles */
+.features-header {
+  text-align: center;
+  margin-bottom: 120px;
+}
+
+.features-tag {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ff3a4c;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.features-title {
+  font-size: 44px;
+  font-weight: 800;
+  color: #0a1a5e;
+  line-height: 1.3;
+}
+
+/* Content Layout - Desktop par défaut */
+.features-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+  margin-bottom: 80px;
+}
+
+.features-content.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.features-text-content {
+  flex: 1;
+  padding-right: 40px;
+}
+
+.features-mockup {
+  flex: 1;
+  position: relative;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Feature Highlight */
+.feature-highlight {
+  display: flex;
+  gap: 20px;
+}
+
+.highlight-marker {
+  flex: 0 0 4px;
+  background-color: #ff3a4c;
+  border-radius: 4px;
+  height: 292px;
+}
+
+.highlight-content {
+  flex: 1;
+}
+
+.feature-title {
+  font-size: 40px;
+  font-weight: 700;
+  color: #0a1a5e;
+  margin-bottom: 16px;
+}
+
+.feature-description {
+  font-size: 18px;
+  line-height: 1.6;
+  color: #454b66;
+  margin-bottom: 24px;
+}
+
+/* Followers Section */
+.followers-indicator {
+  background-color: #f5f5f7;
+  border-radius: 50px;
+  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.avatar-group {
+  display: flex;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid white;
+  margin-left: -10px;
+}
+
+.avatar:first-child {
+  margin-left: 0;
+}
+
+.followers-count {
+  font-size: 14px;
+  font-weight: 500;
+  color: #454b66;
+}
+
+/* Phone Mockups */
+.phone-container {
+  position: relative;
+  z-index: 2;
+}
+
+.phone-left {
+  transform: rotate(-9deg) translateX(139px);
+  z-index: 1;
+}
+
+.phone-right {
+  right: 0;
+  transform: rotate(5deg);
+  z-index: 2;
+  animation: floatPhone2 6s ease-in-out infinite alternate;
+}
+
+/* Circle Decoration */
+.circle-decoration {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  bottom: 5%;
+  right: 10%;
+  background: red;
+  border-radius: 50%;
+  z-index: 0;
+  animation: pulseCircle 8s ease-in-out infinite alternate,
+    glowCircle 5s ease-in-out infinite;
+}
+
+.blue-dot {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  top: 2%;
+  right: 46%;
+  background-color: #0a1a5e;
+  border-radius: 50%;
+  animation: floatDot 4s ease-in-out infinite alternate;
+}
+
+/* Component 2 Style */
+.community-container {
+  font-family: "Montserrat", sans-serif;
+  background: linear-gradient(135deg, #f0f2ff 0%, #e8eeff 50%, #e4edff 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.content-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.phones-container {
+  display: flex;
+  margin-right: 30px;
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.phones-container.animated {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.phone-placeholder {
+  width: 280px;
+  height: 580px;
+  position: relative;
+}
+
+.left-phone {
+  transform: rotate(-5deg);
+}
+
+.right-phone {
+  transform: rotate(9deg) translateX(-117px);
+  z-index: -1;
+}
+
+.right-phone::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  background-color: #ff3b30;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+}
+
+/* Text content */
+.text-content {
+  flex: 1;
+  padding-left: 20px;
+  opacity: 0;
+  transform: translateX(50px);
+  transition: opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s;
+}
+
+.text-content.animated {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.text-content h1 {
+  color: #0011a7;
+  font-size: 39px;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.text-content p {
+  color: #444;
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  max-width: 500px;
+}
+
+.share-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  max-width: 450px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.event-icon {
+  border-radius: 8px;
+  margin-right: 15px;
+}
+
+.share-text {
+  flex: 1;
+}
+
+.share-text h4 {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.share-text p {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+}
+
+.share-options {
+  display: flex;
+  gap: 10px;
+}
+
+.share-option {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.share-option:hover {
+  transform: scale(1.1);
+}
+
+.whatsapp:hover {
+  background-color: rgba(37, 211, 102, 0.1);
+}
+
+.telegram:hover {
+  background-color: rgba(0, 136, 204, 0.1);
+}
+
+.facebook:hover {
+  background-color: rgba(24, 119, 242, 0.1);
+}
+
+.background-circle {
+  position: absolute;
+  filter: blur(92px);
+  width: 100px;
+  height: 100px;
+  background-color: #fbe606;
+  opacity: 2.03;
+  border-radius: 50%;
+  top: 48%;
+  right: 84%;
+}
+
+/* Container styles */
+.promo-container {
+  padding: 164px 20px 2px;
+  display: flex;
+  justify-content: center;
+}
+
+.promo-box {
+  background: #001965;
+  border-radius: 15px;
+  padding: 0 40px;
+  display: flex;
+  color: white;
+  max-width: 884px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  animation: fadeInUp 1.2s ease forwards;
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+.promo-text {
+  max-width: 500px;
+  flex: 1 1 300px;
+}
+
+.promo-text h1 {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.promo-text p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.store-buttons img {
+  height: 50px;
+  margin-right: 15px;
+  cursor: pointer;
+}
+
+.promo-phones {
+  position: relative;
+  width: 280px;
+  height: 420px;
+  margin-top: -80px;
+  flex: 1 1 250px;
+}
+
+.phone {
+  height: 100%;
+  max-height: 400px;
+  position: absolute;
+  opacity: 0;
+  width: auto;
+  max-width: 272px;
+}
+
+.animate-phone-back {
+  animation: slideInLeft 1s ease forwards;
+  animation-delay: 0.6s;
+}
+
+.animate-phone-front {
+  animation: slideInRight 1s ease forwards;
+  animation-delay: 0.8s;
+}
+
+.phone-back {
+  left: 0;
+  top: 30px;
+  z-index: 1;
+}
+
+.phone-front {
+  left: 116px;
+  top: 0;
+  z-index: 2;
+}
+
+/* RESPONSIVE DESIGN - MOCKUPS EN HAUT, TEXTE EN BAS */
+
+/* Tablettes et écrans moyens (1024px et moins) */
+@media (max-width: 989px) {
+  .features-content {
+    flex-direction: column;
+    gap: 30px;
+    text-align: center;
+  }
+
+  .features-text-content {
+    order: 2; /* Texte en bas */
+    padding-right: 0;
+    width: 100%;
+  }
+
+  .features-mockup {
+    order: 1; /* Mockup en haut */
+    width: 100%;
+    height: 300px;
+  }
+
+  .content-wrapper {
+    flex-direction: column;
+    text-align: center;
+    gap: 30px;
+  }
+
+  .phones-container {
+    order: 1; /* Mockup en haut */
+    margin-right: 0;
+    margin-bottom: 0;
+    justify-content: center;
+  }
+
+  .text-content {
+    order: 2; /* Texte en bas */
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .promo-box {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 40px;
+  }
+
+  .promo-phones {
+    order: 1; /* Mockup en haut */
+    margin-top: 0;
+    margin-bottom: 20px;
+    transform: scale(0.8);
+  }
+
+  .promo-text {
+    order: 2; /* Texte en bas */
+  }
+}
+
+/* Écrans moyens (768px et moins) */
+@media (max-width: 768px) {
+  .features-container {
+    padding: 60px 0;
+  }
+
+  .features-header {
+    margin-bottom: 80px;
+  }
+
+  .features-title {
+    font-size: 32px;
+  }
+
+  .features-content {
+    flex-direction: column;
+    gap: 30px;
+    margin-bottom: 60px;
+  }
+
+  .features-mockup {
+    order: 1;
+    height: 350px;
+  }
+
+  .features-text-content {
+    order: 2;
+  }
+
+  .feature-title {
+    font-size: 28px;
+  }
+
+  .feature-description {
+    font-size: 16px;
+  }
+
+  .highlight-marker {
+    height: auto;
+    min-height: 200px;
+  }
+
+  .phone-placeholder {
+    width: 220px;
+    height: 450px;
+  }
+
+  .right-phone::before {
+    width: 220px;
+    height: 220px;
+  }
+
+  .text-content h1 {
+    font-size: 32px;
+  }
+
+  .text-content p {
+    font-size: 16px;
+    max-width: 100%;
+  }
+
+  .circle-decoration {
+    width: 250px;
+    height: 250px;
+  }
+
+  .blue-dot {
+    width: 100px;
+    height: 100px;
+    top: 5%;
+    right: 40%;
+  }
+
+  .promo-text h1 {
+    font-size: 24px;
+  }
+
+  .promo-text p {
+    font-size: 12px;
+  }
+
+  .store-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .store-buttons img {
+    margin: 10px;
+  }
+}
+
+/* Petits écrans (576px et moins) */
+@media (max-width: 576px) {
+  .features-container {
+    padding: 40px 0;
+  }
+
+  .features-section {
+    padding: 0 15px;
+  }
+
+  .features-header {
+    margin-bottom: 60px;
+  }
+
+  .features-title {
+    font-size: 28px;
+  }
+
+  .features-content {
+    gap: 25px;
+    margin-bottom: 40px;
+  }
+
+  .features-mockup {
+    order: 1;
+    height: 280px;
+  }
+
+  .features-text-content {
+    order: 2;
+  }
+
+  .feature-title {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .feature-description {
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+
+  .highlight-marker {
+    min-height: 150px;
+  }
+
+  .community-container {
+    padding: 15px;
+  }
+
+  .content-wrapper {
+    gap: 30px;
+  }
+
+  .phones-container {
+    order: 1;
+    transform: scale(0.6);
+  }
+
+  .phones-container.animated {
+    transform: scale(0.6) translateX(0);
+  }
+
+  .phone-placeholder {
+    width: 180px;
+    height: 370px;
+  }
+
+  .right-phone::before {
+    width: 180px;
+    height: 180px;
+  }
+
+  .right-phone {
+    transform: rotate(12deg) translateX(-82px);
+  }
+
+  .text-content {
+    order: 2;
+  }
+
+  .text-content h1 {
+    font-size: 26px;
+    margin-bottom: 15px;
+  }
+
+  .text-content p {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .share-card {
+    padding: 12px;
+    max-width: 100%;
+  }
+
+  .circle-decoration {
+    width: 120px;
+    height: 120px;
+    right: 15%;
+  }
+
+  .blue-dot {
+    width: 80px;
+    height: 80px;
+    top: 8%;
+    right: 35%;
+  }
+
+  .promo-phones {
+    width: 240px;
+    height: 350px;
+  }
+
+  .phone {
+    max-width: 180px;
+    max-height: 350px;
+  }
+
+  .phone-back {
+    left: 0;
+    top: 20px;
+  }
+
+  .phone-front {
+    left: 60px;
+    top: 0;
+  }
+}
+
+/* Très petits écrans (400px et moins) */
+@media (max-width: 400px) {
+  .features-title {
+    font-size: 24px;
+  }
+
+  .feature-title {
+    font-size: 20px;
+  }
+
+  .feature-description {
+    font-size: 14px;
+  }
+
+  .features-mockup {
+    height: 250px;
+  }
+
+  .phones-container {
+    transform: scale(0.7);
+  }
+
+  .phones-container.animated {
+    transform: scale(0.6) translateX(0);
+  }
+
+  .phone-placeholder {
+    width: 244px;
+    height: 330px;
+  }
+
+  .right-phone::before {
+    width: 260px;
+    height: 260px;
+    top: 105%;
+    left: 158px;
+  }
+
+  .text-content h1 {
+    font-size: 22px;
+  }
+
+  .text-content p {
+    font-size: 13px;
+  }
+
+  .share-card {
+    padding: 10px;
+    flex-wrap: wrap;
+  }
+
+  .share-text {
+    margin-bottom: 10px;
+    width: 100%;
+    text-align: left;
+  }
+
+  .share-options {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .circle-decoration {
+    width: 90px;
+    height: 90px;
+  }
+
+  .blue-dot {
+    width: 70px;
+    height: 70px;
+    top: 10%;
+    right: 52%;
+  }
+
+  .promo-phones {
+    width: 200px;
+    height: 300px;
+  }
+
+  .phone {
+    max-width: 140px;
+    max-height: 300px;
+  }
+
+  .phone-front {
+    left: 40px;
+  }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes floatPhone2 {
+  0% {
+    transform: rotate(5deg) translateY(-5px);
+  }
+  100% {
+    transform: rotate(5deg) translateY(5px);
+  }
+}
+
+@keyframes pulseCircle {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.05) translate(-10px, -10px);
+  }
+  100% {
+    transform: scale(0.95) translate(5px, 5px);
+  }
+}
+
+@keyframes glowCircle {
+  0% {
+    opacity: 0.7;
+    box-shadow: 0 0 30px rgba(255, 59, 76, 0.2);
+  }
+  50% {
+    opacity: 0.9;
+    box-shadow: 0 0 50px rgba(255, 59, 76, 0.4);
+  }
+  100% {
+    opacity: 0.7;
+    box-shadow: 0 0 30px rgba(255, 59, 76, 0.2);
+  }
+}
+
+@keyframes floatDot {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-15px);
+  }
+}
+
+@media (max-width: 768px) {
+  .phone-container {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    display: flex;
+    margin-left: -102px;
+  }
+
+  .phone-image {
+    width: 165px;
+    max-width: 96svw;
+    /* Remove rotation for readability */
+  }
+  .phone-left {
+    transform: rotate(-2deg) translateX(90px);
+    z-index: 1;
+  }
+
+  .promo-box {
+    padding: 20px 20px;
+  }
+}
