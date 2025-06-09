@@ -1,6 +1,6 @@
 // --- middlewares/tokenValidation.middleware.js ---
 const jwt = require('jsonwebtoken');
-const { User } = require('../models/user.model');
+const User = require('../models/user.model');
 const tokenBlacklistService = require('../services/tokenBlacklist.service');
 const { AdminLogger, ACTION_TYPES } = require('../services/adminLogger.service');
 

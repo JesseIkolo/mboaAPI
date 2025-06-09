@@ -1,6 +1,7 @@
 // --- services/loginStats.service.js ---
 const { AdminLog } = require('../models/adminLog.model');
-const { User } = require('../models/user.model');
+const mongoose = require('mongoose');
+const User = require('../models/user.model');
 
 class LoginStatsService {
     static async getFailedLoginStats(startDate, endDate) {

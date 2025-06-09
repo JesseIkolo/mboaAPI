@@ -13,6 +13,7 @@ const businessManagerRoutes = require('./routes/businessManager.routes.js');
 const transactionRoutes = require('./routes/transaction.routes.js');
 const categoryRoutes = require('./routes/category.routes.js');
 const adminRoutes = require('./routes/admin.routes.js'); // Ajout des routes admin
+const statsRoutes = require('./routes/stats.routes.js');
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -36,6 +37,7 @@ app.use('/api', businessManagerRoutes); // Les routes de Business Manager sont s
 app.use('/api', transactionRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/admin', adminRoutes); // Utilisation des routes d'administration
+app.use('/api/stats', statsRoutes);
 
 // Routes
 const apiRoutes = require('./routes/api');
@@ -55,5 +57,10 @@ app.use((err, req, res, next) => {
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('Connecté à MongoDB'))
     .catch(err => console.error('Erreur de connexion à MongoDB:', err));
+
+const PORT = process.env.PORT || 2103;
+app.listen(PORT, () => {
+    console.log(`Serveur démarré sur le port ${PORT}`);
+});
 
 module.exports = app;

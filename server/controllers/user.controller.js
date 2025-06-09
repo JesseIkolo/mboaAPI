@@ -1,5 +1,5 @@
 // --- controllers/user.controller.js ---
-const { User } = require('../models/user.model.js');
+const User = require('../models/user.model.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -9,7 +9,8 @@ const {
   sendOTPByEmail,
   sendOTPBySMS,
   sendOTPByWhatsApp,
-  checkWhatsAppNumber
+  checkWhatsAppNumber,
+  sendWelcomeEmail
 } = require('../services/email.service.js');
 
 function validatePassword(password) {
@@ -20,6 +21,11 @@ function validatePassword(password) {
   if (!/[0-9]/.test(password)) errors.push("doit contenir au moins un chiffre");
   return errors;
 }
+
+// Fonction utilitaire pour générer un token de validation d'email
+const generateEmailToken = () => {
+    return crypto.randomBytes(32).toString('hex');
+};
 
 const register = async (req, res) => {
   const { username, email, phone, password, firstName, lastName } = req.body;
@@ -38,7 +44,7 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = generateOTP();
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
-    const emailToken = crypto.randomBytes(32).toString('hex');
+    const emailToken = generateEmailToken();
 
     const newUser = new User({
       username,
@@ -50,23 +56,27 @@ const register = async (req, res) => {
       otp,
       otpExpires,
       emailToken,
-      isVerified: true,
-      emailVerified: true
+      isVerified: false,
+      emailVerified: false
     });
 
     await newUser.save();
-
+/* 
     const isWhatsapp = await checkWhatsAppNumber(phone);
     if (isWhatsapp) {
       await sendOTPByWhatsApp(phone, otp);
     } else {
       await sendOTPBySMS(phone, otp);
     }
-
+ */
     await sendOTPByEmail(email, otp);
+    await sendWelcomeEmail(email, `${firstName} ${lastName}`);
     await sendEmailValidation(email, emailToken);
 
-    res.status(201).json({ message: 'Inscription réussie. Un code OTP et un lien de validation vous ont été envoyés.' });
+    res.status(201).json({ 
+      message: 'Inscription réussie. Veuillez vérifier votre email pour le code OTP et le lien de validation.',
+      userId: newUser._id 
+    });
   } catch (err) {
     console.error('❌ REGISTER ERROR:', err.message || err);
     res.status(500).json({ message: 'Erreur serveur à l’inscription' });
@@ -86,6 +96,7 @@ const login = async (req, res) => {
     }
 
     console.log('👤 Tentative de connexion avec:', identifier);
+    console.log('🔑 Mot de passe fourni:', password);
 
     // Recherche de l'utilisateur par email, username ou téléphone
     const user = await User.findOne({
@@ -101,6 +112,13 @@ const login = async (req, res) => {
       return res.status(400).json({ message: 'Identifiant invalide' });
     }
 
+    console.log('✅ Utilisateur trouvé:', {
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      hashedPassword: user.password
+    });
+
     if (!user.password) {
       console.log('❌ Utilisateur sans mot de passe:', identifier);
       return res.status(400).json({ message: 'Compte invalide' });
@@ -108,6 +126,8 @@ const login = async (req, res) => {
 
     console.log('🔍 Vérification du mot de passe pour:', identifier);
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('🔐 Résultat de la comparaison:', isMatch);
+
     if (!isMatch) {
       console.log('❌ Mot de passe incorrect pour:', identifier);
       
@@ -184,25 +204,68 @@ const sendOTP = async (req, res) => {
   user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
   await user.save();
   const isWhatsapp = await checkWhatsAppNumber(phone);
+
+  
   if (isWhatsapp) {
     await sendOTPByWhatsApp(phone, otp);
   } else {
     await sendOTPBySMS(phone, otp);
-  }
+  } 
+ 
   await sendOTPByEmail(user.email, otp);
   res.json({ message: 'OTP envoyé.' });
 };
 
 const verifyOTP = async (req, res) => {
-  const { phone, otp } = req.body;
-  const user = await User.findOne({ phone });
-  if (!user || user.otp !== otp || user.otpExpires < new Date()) {
-    return res.status(400).json({ message: 'OTP invalide ou expiré' });
+  try {
+    const { email, otp } = req.body;
+    console.log('Tentative de vérification OTP:', { email, otp });
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log('Utilisateur non trouvé:', email);
+      return res.status(400).json({ message: 'OTP invalide ou expiré' });
+    }
+
+    console.log('État OTP utilisateur:', {
+      userOTP: user.otp,
+      otpExpires: user.otpExpires,
+      currentTime: new Date()
+    });
+
+    if (!user.otp || !user.otpExpires) {
+      console.log('Pas d\'OTP trouvé pour l\'utilisateur');
+      return res.status(400).json({ message: 'OTP invalide ou expiré' });
+    }
+
+    if (user.otpExpires < new Date()) {
+      console.log('OTP expiré');
+      return res.status(400).json({ message: 'OTP invalide ou expiré' });
+    }
+
+    if (user.otp !== otp) {
+      console.log('OTP incorrect');
+      return res.status(400).json({ message: 'OTP invalide ou expiré' });
+    }
+
+    user.isVerified = true;
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
+
+    console.log('Vérification OTP réussie pour:', email);
+    res.json({ 
+      message: 'Vérification réussie',
+      user: {
+        _id: user._id,
+        email: user.email,
+        isVerified: user.isVerified
+      }
+    });
+  } catch (error) {
+    console.error('Erreur lors de la vérification OTP:', error);
+    res.status(500).json({ message: 'Erreur lors de la vérification de l\'OTP' });
   }
-  user.isVerified = true;
-  user.otp = null;
-  await user.save();
-  res.json({ message: 'Vérification réussie' });
 };
 
 const resetPassword = async (req, res) => {
@@ -357,6 +420,15 @@ const unfollowUser = async (req, res) => {
     }
 };
 
+const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select('-password');
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 module.exports = {
   register,
@@ -370,5 +442,6 @@ module.exports = {
   updateUser,
   deleteUser,
   followUser,
-  unfollowUser
+  unfollowUser,
+  getCurrentUser
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { Toaster } from 'react-hot-toast';
 import GetStarted from './pages/auth/GetStarted';
 import Home from './pages/admin';
 import Welcome from './pages/Welcome';
@@ -11,6 +12,22 @@ function App() {
   return (
     <NotificationProvider>
       <Router>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+            success: {
+              duration: 3000,
+              theme: {
+                primary: '#4aed88',
+              },
+            },
+          }}
+        />
         <Routes>
           {/* Route publique */}
           <Route path="/" element={<Welcome />} />

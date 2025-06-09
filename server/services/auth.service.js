@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { User } = require('../models/user.model');
+const User = require('../models/user.model');
 const { AdminLogger, ACTION_TYPES } = require('./adminLogger.service');
 const EmailService = require('./email.service');
 const tokenBlacklistService = require('./tokenBlacklist.service');

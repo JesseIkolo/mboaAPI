@@ -1,6 +1,7 @@
 // --- models/user.model.js ---
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const bcrypt = require('bcryptjs');
 
 // Définition des permissions possibles
 const PERMISSIONS = {
@@ -43,16 +44,54 @@ const DEFAULT_PERMISSIONS = {
 };
 
 const userSchema = new Schema({
-    username: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
-    phone: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        lowercase: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true
+    },
+    firstName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    lastName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    phone: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true
+    },
     otp: { type: String },
     otpExpires: { type: Date },
     emailToken: { type: String },
-    emailVerified: { type: Boolean, default: false },
+    isEmailVerified: {
+        type: Boolean,
+        default: false
+    },
+    otpData: {
+        code: String,
+        expiresAt: Date,
+        attempts: {
+            type: Number,
+            default: 0
+        }
+    },
     isVerified: { type: Boolean, default: false },
     role: { 
         type: String, 
@@ -92,7 +131,19 @@ const userSchema = new Schema({
     lockCount: {
         type: Number,
         default: 0
+    },
+    status: {
+        type: String,
+        enum: ['active', 'inactive', 'waitlist'],
+        default: 'waitlist'
+    },
+    subscription: {
+        type: String,
+        enum: ['freemium', 'premium', 'none'],
+        default: 'freemium'
     }
+}, {
+    timestamps: true
 });
 
 // Méthode pour vérifier si l'utilisateur a une permission spécifique
@@ -155,11 +206,23 @@ userSchema.methods.isLocked = function() {
     return true;
 };
 
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+    if (this.isModified('password') && !this.password.startsWith('$2b$')) {
+        this.password = await bcrypt.hash(this.password, 10);
+    }
+    next();
+});
+
+// Compare password method
+userSchema.methods.comparePassword = async function(candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
+};
+
+// Créer et exporter le modèle
 const User = mongoose.model('User', userSchema);
 
-module.exports = {
-    User,
-    PERMISSIONS,
-    ADMIN_ROLES,
-    DEFAULT_PERMISSIONS
-};
+module.exports = User;
+module.exports.PERMISSIONS = PERMISSIONS;
+module.exports.ADMIN_ROLES = ADMIN_ROLES;
+module.exports.DEFAULT_PERMISSIONS = DEFAULT_PERMISSIONS;

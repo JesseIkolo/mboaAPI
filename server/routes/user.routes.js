@@ -12,7 +12,8 @@ const {
   updateUser,
   deleteUser,
   followUser,
-unfollowUser
+  unfollowUser,
+  getCurrentUser
 } = require('../controllers/user.controller.js');
 const { authMiddleware, adminMiddleware } = require('../middlewares/auth.middleware.js');
 
@@ -27,6 +28,7 @@ router.post('/reset-password', resetPassword);
 router.get('/verify-email', verifyEmail);
 
 // --- Routes protégées ---
+router.get('/me', authMiddleware, getCurrentUser);
 router.get('/', authMiddleware, getAllUsers);
 router.get('/:id', authMiddleware, getUserById);
 router.put('/:id', authMiddleware, updateUser);

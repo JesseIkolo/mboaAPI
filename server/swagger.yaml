@@ -81,6 +81,53 @@ components:
         user:
           $ref: '#/components/schemas/User'
 
+    UnlockAccountRequest:
+      type: object
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          description: Raison du déblocage du compte
+          example: "Déblocage manuel après vérification de l'identité"
+
+    UnlockAccountResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Compte débloqué avec succès"
+        admin:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            email:
+              type: string
+              format: email
+            name:
+              type: string
+
+    LockedAccount:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        lockUntil:
+          type: string
+          format: date-time
+        loginAttempts:
+          type: integer
+        lockCount:
+          type: integer
+
     Event:
       type: object
       properties:
@@ -284,6 +331,179 @@ paths:
                       type: string
                     description:
                       type: string
+
+  /admin-security/unlock/{adminId}:
+    post:
+      tags:
+        - Administration
+        - Sécurité
+      summary: Débloquer un compte administrateur
+      description: Permet à un super admin de débloquer manuellement un compte administrateur verrouillé
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: adminId
+          required: true
+          schema:
+            type: string
+          description: ID de l'administrateur à débloquer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnlockAccountRequest'
+      responses:
+        '200':
+          description: Compte débloqué avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnlockAccountResponse'
+        '400':
+          description: Requête invalide ou compte non bloqué
+        '401':
+          description: Non authentifié
+        '403':
+          description: Accès non autorisé (réservé aux super admins)
+        '404':
+          description: Administrateur non trouvé
+        '500':
+          description: Erreur serveur
+
+  /admin-security/locked-accounts:
+    get:
+      tags:
+        - Administration
+        - Sécurité
+      summary: Liste des comptes bloqués
+      description: Récupère la liste des comptes actuellement bloqués
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Liste des comptes bloqués récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LockedAccount'
+        '401':
+          description: Non authentifié
+        '403':
+          description: Accès non autorisé (réservé aux super admins)
+        '500':
+          description: Erreur serveur
+
+  /admin-security/stats/failed-logins:
+    get:
+      tags:
+        - Administration
+        - Sécurité
+      summary: Statistiques des tentatives de connexion échouées
+      description: Récupère les statistiques des tentatives de connexion échouées
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: startDate
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Date de début de la période
+        - in: query
+          name: endDate
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Date de fin de la période
+      responses:
+        '200':
+          description: Statistiques récupérées avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalFailedAttempts:
+                    type: integer
+                  uniqueUsers:
+                    type: integer
+                  averageAttemptsPerUser:
+                    type: number
+                  mostTargetedAccounts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        email:
+                          type: string
+                        attempts:
+                          type: integer
+        '400':
+          description: Dates manquantes ou invalides
+        '401':
+          description: Non authentifié
+        '403':
+          description: Accès non autorisé (réservé aux super admins)
+        '500':
+          description: Erreur serveur
+
+  /admin-security/stats/by-time:
+    get:
+      tags:
+        - Administration
+        - Sécurité
+      summary: Statistiques par heure
+      description: Récupère les statistiques des tentatives de connexion par heure de la journée
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: startDate
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Date de début de la période
+        - in: query
+          name: endDate
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Date de fin de la période
+      responses:
+        '200':
+          description: Statistiques récupérées avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hourlyStats:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        hour:
+                          type: integer
+                        attempts:
+                          type: integer
+                        successRate:
+                          type: number
+        '400':
+          description: Dates manquantes ou invalides
+        '401':
+          description: Non authentifié
+        '403':
+          description: Accès non autorisé (réservé aux super admins)
+        '500':
+          description: Erreur serveur
 
 components:
   responses:

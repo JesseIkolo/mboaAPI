@@ -1,7 +1,10 @@
 // --- controllers/adminSecurity.controller.js ---
 const LoginStatsService = require('../services/loginStats.service');
-const { User } = require('../models/user.model');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user.model');
 const { AdminLogger, ACTION_TYPES } = require('../services/adminLogger.service');
+const tokenBlacklistService = require('../services/tokenBlacklist.service');
 
 class AdminSecurityController {
     // Obtenir les statistiques des tentatives de connexion échouées

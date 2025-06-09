@@ -3,10 +3,12 @@ export const config = {
   AUTH_ENDPOINTS: {
     LOGIN: '/api/users/login',
     REGISTER: '/api/users/register',
-    VERIFY_OTP: '/api/auth/verify-otp',
+    VERIFY_OTP: '/api/users/verify-otp',
+    RESEND_OTP: '/api/users/resend-otp',
     RESET_PASSWORD: '/api/auth/reset-password',
     NEW_PASSWORD: '/api/auth/new-password',
-    WAITING_LIST: '/api/waitlist'
+    WAITING_LIST: '/api/waitlist',
+    SEND_CONFIRMATION: '/api/users/send-confirmation'
   }
 };
 

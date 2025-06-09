@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { Notification, NotificationTypes } from '../Components/Notification/index';
+import { Notification, NotificationTypes } from '../components/notification/index';
 
 const NotificationContext = createContext(null);
 

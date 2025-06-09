@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import MboaEvent from '../Components/MboaEvent/index';
-import Hero from '../Components/Hero/index';
-import Feature from '../Components/Features/index';
-import Faq from '../Components/Faq/index';
-import FaqQuestion from '../Components/Faq';
-import WaitingList from '../Components/WaitingList';
-import Footer from '../Components/Footer';
+import MboaEvent from '../components/mboaevent/index';
+import Hero from '../components/hero/index';
+import Feature from '../components/features/index';
+import Faq from '../components/faq/index';
+import FaqQuestion from '../components/faq';
+import WaitingList from '../components/waitinglist';
+import Footer from '../components/footer';
 
 function Welcome() {
   const [count, setCount] = useState(0)

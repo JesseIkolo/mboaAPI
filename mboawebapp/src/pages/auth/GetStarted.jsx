@@ -3,7 +3,8 @@ import { Eye, EyeOff, User, Mail, Phone, Key } from 'lucide-react';
 import { config } from '../../config/env';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../../contexts/NotificationContext';
-import PasswordStrengthIndicator from '../../Components/PasswordStrengthIndicator';
+import PasswordStrengthIndicator from '../../components/passwordstrengthindicator';
+import OTPValidation from './OTPValidation';
 
 export default function AuthInterface() {
   const navigate = useNavigate();
@@ -36,7 +37,8 @@ export default function AuthInterface() {
     password: '',
     confirmPassword: '',
     firstName: '',
-    lastName: ''
+    lastName: '',
+    adminType: 'admin'
   });
 
   const handleLogin = async () => {
@@ -82,6 +84,8 @@ export default function AuthInterface() {
       if (!response.ok) {
         if (data.requiresOTP) {
           showInfo('Un code OTP a été envoyé pour vérification');
+          // Stocker l'email pour la validation OTP
+          localStorage.setItem('userEmail', loginIdentifier);
           setCurrentStep('otp');
           return;
         }
@@ -118,17 +122,18 @@ export default function AuthInterface() {
     }
   };
 
-  const handleOTPVerification = async () => {
+  const handleOTPVerification = async (otpCode) => {
     try {
       setIsLoading(true);
+      const email = localStorage.getItem('userEmail');
 
-      const response = await fetch(`${config.API_URL}/api/auth/verify-otp`, {
+      const response = await fetch(`${config.API_URL}${config.AUTH_ENDPOINTS.VERIFY_OTP}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          [loginMethod]: loginIdentifier,
+          email,
           otp: otpCode
         }),
       });
@@ -136,21 +141,32 @@ export default function AuthInterface() {
       const data = await response.json();
 
       if (!response.ok) {
-        showError(data.message || 'Code OTP invalide');
-        return;
+        throw new Error(data.message || 'Code OTP invalide');
       }
 
-      showSuccess('Code OTP vérifié avec succès');
-      // Stocker le token et les informations utilisateur
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      // Envoyer l'email de confirmation
+      const confirmResponse = await fetch(`${config.API_URL}/api/users/send-confirmation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email })
+      });
 
-      // Rediriger vers le dashboard admin
-      navigate('/admin');
+      if (!confirmResponse.ok) {
+        const confirmData = await confirmResponse.json();
+        throw new Error(confirmData.message || 'Erreur lors de l\'envoi de l\'email de confirmation');
+      }
+
+      showSuccess('Compte vérifié avec succès! Un email de confirmation vous a été envoyé.');
       
+      // Rediriger vers la page de connexion
+      setCurrentStep('login');
+      setIsLogin(true);
 
     } catch (err) {
-      showError(err.message || 'Erreur lors de la vérification OTP');
+      console.error('Erreur lors de la vérification OTP:', err);
+      showError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -228,7 +244,7 @@ export default function AuthInterface() {
   const handleRegister = async () => {
     try {
       if (registerData.password !== registerData.confirmPassword) {
-        setError('Les mots de passe ne correspondent pas');
+        showError('Les mots de passe ne correspondent pas');
         return;
       }
 
@@ -247,7 +263,7 @@ export default function AuthInterface() {
           password: registerData.password,
           firstName: registerData.firstName,
           lastName: registerData.lastName,
-          role: 'admin' // Demande de création d'un compte admin
+          role: registerData.adminType
         }),
       });
 
@@ -257,12 +273,15 @@ export default function AuthInterface() {
         throw new Error(data.message || 'Erreur lors de l\'inscription');
       }
 
-      // Afficher un message de succès et rediriger vers la connexion
-      alert('Inscription réussie! Un administrateur validera votre compte.');
-      setIsLogin(true);
+      // Stocker l'email pour la validation OTP
+      localStorage.setItem('userEmail', registerData.email);
+      
+      // Afficher un message de succès et passer à l'étape OTP
+      showSuccess('Inscription réussie! Veuillez vérifier votre email pour le code OTP.');
+      setCurrentStep('otp');
 
     } catch (err) {
-      setError(err.message);
+      showError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -501,6 +520,21 @@ export default function AuthInterface() {
                   </div>
                 </div>
 
+                {/* Type d'administrateur */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Type d'administrateur
+                  </label>
+                  <select
+                    value={registerData.adminType}
+                    onChange={(e) => setRegisterData({...registerData, adminType: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-gray-50"
+                  >
+                    <option value="admin">Administrateur</option>
+                    <option value="superadmin">Super Administrateur</option>
+                  </select>
+                </div>
+
                 {/* Nom d'utilisateur */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -604,53 +638,7 @@ export default function AuthInterface() {
         )}
 
         {currentStep === 'otp' && (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-center mb-6">
-              Vérification OTP
-            </h3>
-            
-            {error && (
-              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                {error}
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Code de vérification
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                  <Key className="w-5 h-5" />
-                </div>
-                <input
-                  type="text"
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-gray-50"
-                  placeholder="Entrez le code reçu"
-                  maxLength={6}
-                />
-              </div>
-            </div>
-
-            <button
-              onClick={handleOTPVerification}
-              disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-            >
-              {isLoading ? 'Vérification...' : 'Vérifier'}
-            </button>
-
-            <div className="text-center">
-              <button
-                onClick={() => setCurrentStep('login')}
-                className="text-sm text-gray-600 hover:text-gray-800"
-              >
-                Retour à la connexion
-              </button>
-            </div>
-          </div>
+          <OTPValidation onVerify={handleOTPVerification} />
         )}
 
         {currentStep === 'reset-password' && (

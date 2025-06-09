@@ -49,12 +49,12 @@ const EventCard = ({ event }) => {
   
         {/* Contenu */}
         <div className="p-4">
-          <h3 className="font-semibold text-gray-900 mb-2">{event.title}</h3>
+          <h5 className="font-semibold text-gray-900 mb-2 event-card-title">{event.title}</h5>
           <div className="flex items-center text-sm text-gray-600 mb-3">
             <span>{event.places} places</span>
             <span className="mx-2">•</span>
             <MapPin className="w-4 h-4 mr-1" />
-            <span>{event.location}</span>
+            <span>{event.location.name}, {event.location.city}</span>
           </div>
           
           <div className="flex items-center justify-between mb-4">

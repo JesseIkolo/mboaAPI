@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { 
-  Home, 
-  Calendar, 
+import React, { useState, useEffect } from 'react';
+import {
+  Home,
+  Calendar,
   CreditCard, 
   Users, 
   Megaphone, 
@@ -18,147 +18,294 @@ import {
   Share,
   MoreHorizontal,
   MapPin,
-  Eye
+  Eye,
+  UserCheck,
+  Building2,
+  LayoutDashboard
 } from 'lucide-react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 
-import Sidebar from '../../Components/global/Sidebar';
-import Header from '../../Components/global/Header';
-import StatCard from '../../Components/global/StatCard';
-import ModuleCard from '../../Components/global/ModuleCard';
-import EventCard from '../../Components/global/EventCard';
-
+import Sidebar from '../../components/global/Sidebar';
+import Header from '../../components/global/Header';
+import StatCard from '../../components/global/StatCard';
+import ModuleCard from '../../components/global/ModuleCard';
+import EventCard from '../../components/global/EventCard';
+import DashboardStats from '../../components/admin/DashboardStats';
+import AdministratorManagement from '../../components/admin/AdministratorManagement';
+import AuthService from '../../services/auth.service';
+import EventPage from './EventPage';
+import UserPage from './UserPage';
+import PartnerPage from './PartnerPage';
+import DashboardPage from './DashboardPage';
+import SettingsPage from './SettingsPage';
 
 // Composant principal Dashboard
 const HomePage = () => {
   const [activeItem, setActiveItem] = useState('accueil');
+  const [user, setUser] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [stats, setStats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const stats = [
-    { title: 'Utilisateur de la waitinglist', value: '10' },
-    { title: 'Évènements', value: '10' },
-    { title: 'Partenaires', value: '10' },
-    { title: 'Montant généré en mars', value: '10,5M' },
-    { title: 'Total d\'utilisateurs Premium', value: '25k' },
-    { title: 'Total d\'utilisateurs Freemium', value: '25,5M' },
-  ];
+  const location = useLocation();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('Token non trouvé');
+        }
+
+        const headers = {
+          'Authorization': `Bearer ${token}`
+        };
+
+        // Récupérer les informations de l'utilisateur
+        const userResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/users/me`, {
+          headers
+        });
+
+        if (!userResponse.ok) {
+          throw new Error('Erreur lors de la récupération des données utilisateur');
+        }
+
+        const userData = await userResponse.json();
+        setUser(userData);
+
+        // Vérifier les permissions pour les statistiques
+        if (AuthService.hasPermission(userData, 'manage_events')) {
+          const eventsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/events`, {
+            headers
+          });
+          
+          if (!eventsResponse.ok) {
+            throw new Error('Erreur lors de la récupération des événements');
+          }
+          
+          const eventsData = await eventsResponse.json();
+          setEvents(eventsData);
+        }
+
+        // Vérifier les permissions pour les statistiques
+        if (AuthService.hasPermission(userData, 'manage_users')) {
+          const statsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/stats/dashboard`, {
+            headers
+          });
+          
+          if (!statsResponse.ok) {
+            throw new Error('Erreur lors de la récupération des statistiques');
+          }
+          
+          const statsData = await statsResponse.json();
+          const formattedStats = [
+            { title: 'Utilisateur de la waitinglist', value: statsData.waitlist },
+            { title: 'Évènements', value: statsData.events },
+            { title: 'Partenaires', value: statsData.partners },
+            { title: 'Montant généré en mars', value: statsData.monthlyRevenue },
+            { title: 'Total d\'utilisateurs Premium', value: statsData.premiumUsers },
+            { title: 'Total d\'utilisateurs Freemium', value: statsData.freemiumUsers },
+          ];
+          setStats(formattedStats);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const modules = [
-    { title: 'Statistiques', icon: BarChart3, bgColor: 'bg-green-100', textColor: 'text-green-700' },
-    { title: 'Partenaires', icon: Users, bgColor: 'bg-purple-100', textColor: 'text-purple-700' },
-    { title: 'Transactions', icon: CreditCard, bgColor: 'bg-blue-100', textColor: 'text-blue-700' },
-    { title: 'Évènements', icon: Calendar, bgColor: 'bg-gray-100', textColor: 'text-gray-700' },
-    { title: 'Publicités', icon: Megaphone, bgColor: 'bg-red-100', textColor: 'text-red-700' },
-    { title: 'Messagerie', icon: MessageSquare, bgColor: 'bg-blue-100', textColor: 'text-blue-700' },
-    { title: 'Utilisateurs', icon: Users, bgColor: 'bg-yellow-100', textColor: 'text-yellow-700' },
+    { 
+      title: 'Statistiques', 
+      icon: BarChart3, 
+      bgColor: 'bg-green-100', 
+      textColor: 'text-green-700',
+      permission: 'manage_users'
+    },
+    { 
+      title: 'Partenaires', 
+      icon: Users, 
+      bgColor: 'bg-purple-100', 
+      textColor: 'text-purple-700',
+      permission: 'manage_partners'
+    },
+    { 
+      title: 'Transactions', 
+      icon: CreditCard, 
+      bgColor: 'bg-blue-100', 
+      textColor: 'text-blue-700',
+      permission: 'manage_transactions'
+    },
+    { 
+      title: 'Évènements', 
+      icon: Calendar, 
+      bgColor: 'bg-gray-100', 
+      textColor: 'text-gray-700',
+      permission: 'manage_events',
+      key: 'evenements'
+    },
+    { 
+      title: 'Publicités', 
+      icon: Megaphone, 
+      bgColor: 'bg-red-100', 
+      textColor: 'text-red-700',
+      permission: 'manage_ads'
+    },
+    { 
+      title: 'Messagerie', 
+      icon: MessageSquare, 
+      bgColor: 'bg-blue-100', 
+      textColor: 'text-blue-700',
+      permission: 'manage_chats'
+    },
+    { 
+      title: 'Utilisateurs', 
+      icon: Users, 
+      bgColor: 'bg-yellow-100', 
+      textColor: 'text-yellow-700',
+      permission: 'manage_users'
+    },
+    { 
+      title: 'Waiting List', 
+      icon: UserCheck, 
+      bgColor: 'bg-yellow-100', 
+      textColor: 'text-yellow-700',
+      permission: 'manage_users'
+    }
   ];
 
-  const events = [
+  // Filtrer les modules en fonction des permissions de l'utilisateur
+  const filteredModules = modules.filter(module => 
+    !module.permission || (user && AuthService.hasPermission(user, module.permission))
+  );
+
+  const handleModuleClick = (module) => {
+    const navigationKey = module.key || module.title.toLowerCase();
+    setActiveItem(navigationKey);
+  };
+
+  const renderContent = () => {
+    switch (activeItem) {
+      case 'administration':
+        return <AdministratorManagement />;
+      case 'evenements':
+        return <EventPage />;
+      case 'utilisateurs':
+        return <UserPage />;
+      case 'partenaires':
+        return <PartnerPage />;
+      default:
+        return (
+          <>
+            {/* Section Welcome */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8">
+              <h1 className="text-3xl font-bold mb-2">
+                Welcome, <span className="text-yellow-300">{user ? user.firstName || 'Admin' : 'Admin'}</span>
+              </h1>
+              <p className="text-blue-100">Are you ready to connect with other people?</p>
+            </div>
+
+            <div className="p-8">
+              {/* Statistiques */}
+              {loading ? ( 
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                  <div className="col-span-5 text-center">Chargement des statistiques...</div>
+                </div>
+              ) : (
+                user && AuthService.hasPermission(user, 'manage_users') && <DashboardStats stats={stats} />
+              )}
+
+              {/* Modules d'accès */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+                  Quel module souhaitez-vous accéder ?
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {filteredModules.map((module, index) => (
+                    <ModuleCard
+                      key={index}
+                      title={module.title}
+                      icon={module.icon}
+                      bgColor={module.bgColor}
+                      textColor={module.textColor}
+                      onClick={() => handleModuleClick(module)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Événements récents */}
+              {user && AuthService.hasPermission(user, 'manage_events') && (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      Événements récents
+                    </h2>
+                    <button 
+                      className="flex items-center text-orange-600 hover:text-orange-700 font-medium"
+                      onClick={() => handleModuleClick(modules.find(m => m.key === 'evenements'))}
+                    >
+                      Voir Tout
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {events.map((event) => (
+                      <EventCard key={event.id} event={event} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        );
+    }
+  };
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Erreur</h2>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const navigation = [
     {
-      id: 1,
-      organizer: 'Eric Fotso',
-      timeAgo: 'Il y a 3min',
-      day: '10',
-      month: 'Juin',
-      title: 'Ko-C, nouvelle tournée',
-      places: '250 places',
-      location: 'Au PaGGy de Yaoundé',
-      price: '25 000 XAF',
-      participants: '320',
-      likes: '223',
-      comments: '248',
-      shares: '45M',
-      status: 'participate',
-      isLive: false,
-      image: '/api/placeholder/400/200'
+      name: 'Tableau de bord',
+      href: '/admin',
+      icon: LayoutDashboard,
+      exact: true
     },
     {
-      id: 2,
-      organizer: 'Eric Fotso',
-      timeAgo: 'Il y a 3min',
-      day: '10',
-      month: 'Juin',
-      title: 'Elections du président',
-      places: '250 places',
-      location: 'Au PaGGy de Yaoundé',
-      price: '25 000 XAF',
-      participants: '320',
-      likes: '223',
-      comments: '248',
-      shares: '45M',
-      status: 'participate',
-      isLive: true,
-      image: '/api/placeholder/400/200'
+      name: 'Événements',
+      href: '/admin/events',
+      icon: Calendar
     },
     {
-      id: 3,
-      organizer: 'Eric Fotso',
-      timeAgo: 'Il y a 3min',
-      day: '10',
-      month: 'Juin',
-      title: 'Concert de Blanche au Paposy',
-      places: '250 places',
-      location: 'Au PaGGy de Yaoundé',
-      price: '25 000 XAF',
-      participants: '320',
-      likes: '223',
-      comments: '248',
-      shares: '45M',
-      status: 'participating',
-      isLive: false,
-      image: '/api/placeholder/400/200'
+      name: 'Utilisateurs',
+      href: '/admin/users',
+      icon: Users
     },
     {
-      id: 4,
-      organizer: 'Eric Fotso',
-      timeAgo: 'Il y a 3min',
-      day: '10',
-      month: 'Juin',
-      title: 'Elections du président',
-      places: '250 places',
-      location: 'Au PaGGy de Yaoundé',
-      price: '25 000 XAF',
-      participants: '320',
-      likes: '223',
-      comments: '248',
-      shares: '45M',
-      status: 'participate',
-      isLive: false,
-      image: '/api/placeholder/400/200'
+      name: 'Partenaires',
+      href: '/admin/partners',
+      icon: Building2
     },
     {
-      id: 5,
-      organizer: 'Eric Fotso',
-      timeAgo: 'Il y a 3min',
-      day: '26',
-      month: 'Mars',
-      title: 'Concert de Tenor, le turbo d\'Afrique',
-      places: '250 places',
-      location: 'Au Stade de Bépanda',
-      price: '25 000 XAF',
-      participants: '320',
-      likes: '223',
-      comments: '248',
-      shares: '45M',
-      status: 'participate',
-      isLive: true,
-      image: '/api/placeholder/400/200'
-    },
-    {
-      id: 6,
-      organizer: 'Eric Fotso',
-      timeAgo: 'Il y a 3min',
-      day: '05',
-      month: 'Mai',
-      title: 'Concert de petit Pays, le turbo d\'Afrique',
-      places: '250 places',
-      location: 'Au PaGGy de Yaoundé',
-      price: '25 000 XAF',
-      participants: '320',
-      likes: '223',
-      comments: '248',
-      shares: '45M',
-      status: 'participate',
-      isLive: true,
-      image: '/api/placeholder/400/200'
+      name: 'Paramètres',
+      href: '/admin/settings',
+      icon: Settings
     }
   ];
 
@@ -170,66 +317,19 @@ const HomePage = () => {
         <Header />
         
         <main className="flex-1 overflow-y-auto">
-          {/* Section Welcome */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8">
-            <h1 className="text-3xl font-bold mb-2">
-              Welcome, <span className="text-yellow-300">Stephane</span>
-            </h1>
-            <p className="text-blue-100">Are you ready to connect with other people?</p>
-          </div>
-
-          <div className="p-8">
-            {/* Statistiques */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-              {stats.map((stat, index) => (
-                <StatCard key={index} title={stat.title} value={stat.value} />
-              ))}
-            </div>
-
-            {/* Modules d'accès */}
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                Quel module souhaitez-vous accéder ?
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {modules.map((module, index) => (
-                  <ModuleCard
-                    key={index}
-                    title={module.title}
-                    icon={module.icon}
-                    bgColor={module.bgColor}
-                    textColor={module.textColor}
-                    onClick={() => setActiveItem(module.title.toLowerCase())}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Événements récents */}
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Événements récents
-                </h2>
-                <button className="flex items-center text-orange-600 hover:text-orange-700 font-medium">
-                  Voir Tout
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {events.map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <footer className="bg-white border-t border-gray-200 p-4 text-center text-sm text-gray-500">
-            Copyright @ Mboa Events Admin 2024. All right Reserved.
-          </footer>
+          <Routes>
+            <Route path="/" element={renderContent()} />
+            <Route path="/events" element={<EventPage />} />
+            <Route path="/users" element={<UserPage />} />
+            <Route path="/partners" element={<PartnerPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Routes>
         </main>
+
+        {/* Footer */}
+        <footer className="bg-white border-t border-gray-200 p-4 text-center text-sm text-gray-500">
+          Copyright @ Mboa Events Admin 2024. All right Reserved.
+        </footer>
       </div>
     </div>
   );

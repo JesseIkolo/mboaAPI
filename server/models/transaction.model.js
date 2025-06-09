@@ -1,9 +1,14 @@
 const mongoose = require('mongoose');
 
 const transactionSchema = new mongoose.Schema({
-    partnerId: {
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Partner',
+        ref: 'User',
+        required: true
+    },
+    eventId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Event',
         required: true
     },
     amount: {
@@ -14,53 +19,35 @@ const transactionSchema = new mongoose.Schema({
         type: String,
         default: 'XAF'
     },
-    subscriptionType: {
-        type: String,
-        enum: ['mboaPlus', 'premium'],
-        required: true
-    },
-    subscriptionDuration: {
-        type: Number, // Durée en mois
-        required: true
-    },
-    paymentMethod: {
-        type: String,
-        enum: ['mtn', 'orange', 'eu_mobile'],
-        required: true
-    },
     status: {
         type: String,
         enum: ['pending', 'completed', 'failed', 'refunded'],
         default: 'pending'
     },
-    campayReference: {
+    paymentMethod: {
         type: String,
-        index: true,
-        sparse: true
-    },
-    externalReference: {
-        type: String,
-        index: true,
+        enum: ['mobile_money', 'card', 'bank_transfer'],
         required: true
     },
     paymentDetails: {
-        phoneNumber: String,
-        operatorTransactionId: String,
-        operatorName: String
+        transactionId: String,
+        provider: String,
+        paymentDate: Date
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
+    ticketType: {
+        type: String,
+        required: true
     },
-    updatedAt: {
-        type: Date,
-        default: Date.now
+    quantity: {
+        type: Number,
+        required: true,
+        min: 1
     }
 }, {
     timestamps: true
 });
 
 // Index pour améliorer les performances des recherches
-transactionSchema.index({ partnerId: 1, status: 1 });
+transactionSchema.index({ userId: 1, status: 1 });
 
 module.exports = mongoose.model('Transaction', transactionSchema); 
